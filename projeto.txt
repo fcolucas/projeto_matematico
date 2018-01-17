@@ -1,0 +1,72 @@
+Protocolo de operações matemáticas
+
+1 . Pacote de requisição
+    O protocolo tem o intuito de realizar operações matemáticas com N números. 
+    O pacote de requisição possui o seguinte formato: 
+
+     0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     | Type(1 octet)| Length(1 Octet) | ID (1 octet)  | OP(1 octet)  |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                        First Number (8 octets)                |
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                       Second Number (8 octets)                |
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                             ...                               |
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Type = Tipo do pacote:
+    0 . Requisição
+    
+Length = Tamanho do pacote menos o HEADER
+ID = Identificador da operação.
+Op = Informa o tipo de operação:
+    0 . Soma
+    1 . Subtração
+    2 . Multiplicação
+    3 . Divisão
+
+First Number = Valor do primeiro número.
+Second Number = Valor do segundo número.
+... = Third, fourth, etc.
+ 
+2 . Pacote de resposta
+    O pacote de resposta informa o resultado da operação matemática. 
+    E possui o seguinte formato: 
+
+    0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Type(1 octet)| Length(1 Octet) | ID (1 octet)  | OP(1 octet)  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                        Result (8 octets)                      |
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+Type = Tipo do pacote
+    1 . Result
+
+Length = Tamanho do pacote menos o HEADER
+ID = Identificador da operação
+OP = Informa se a operação foi bem sucedida:
+    0 . Bem sucedida
+    1 . Impossibilidade Matemática
+    2 . Error de sintaxe
+
+Result = Resultado da operação
+
+3 . Requisitos
+    1 . Qualquer valor não especificado no OP deve resultar no descarte do pacote.
+    2 . Caso o OP do pacote de resposta seja diferente de 0(zero) o resultado deve ser ignorado.
+    3 . É necessário que os resultados sejam armazenados para consultas futuras, juntamente com as operações.
+    4 . O pacote de requisição deve poder informar N números.
+    5 . O ID deve ser único.
+    6 . O HEADER deve obrigatoriamente possuir 4 octetos.
+    7 . O Length é apenas para o tamanho do pacote sem o HEADER, já que o HEADER possui tamanho fixo.
+    8 . Caso o tamanho do pacote seja diferente do informado o pacote deve ser descartado.
+    9 . Todos os pacotes de requisição descartados por incongruência nas informações devem ser respondidos com o campo de OP setado para 2. 
+
