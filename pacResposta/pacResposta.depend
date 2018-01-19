@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1516372830 source:/home/lds/Desktop/projeto_matematico/pacResposta/main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/socket.h>
+	<sys/types.h>
+	<netinet/in.h>
+	<unistd.h>
+	<endian.h>
+
