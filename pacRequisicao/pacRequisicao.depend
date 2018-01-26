@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1516191918 source:/home/lds/Desktop/projeto_matematico/pacRequisicao/main.c
+	<stdio.h>
+	<stdlib.h>
+
