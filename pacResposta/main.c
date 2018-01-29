@@ -24,7 +24,7 @@ struct resposta{
 	double resposta;
 };
 
-void gera_RESP(struct resposta *resp, int length, int id, int Op, int total){
+void gera_RESP(struct resposta *resp, int length, int id, int Op, double total){
     resp->head[0] = 1; /*Tipo de pacote*/
     resp->head[1] = length*8; /*Tamanho do pacote*/
     resp->head[2] = id; /*Identificador da operação(o mesmo do pacote requisição)*/
