@@ -12,78 +12,28 @@
 #define FALSE 0
 
 struct sockaddr_in local;
-struct sockaddr_in remoto;
+struct sockaddr_in remote;
 
 struct pacote{
 	char head[4];
 	double numeros[20];
 };
 
-struct resposta{
+struct answer{
 	char head[4];
-	double resposta;
+	double total;
 };
 
-void gera_RESP(struct resposta *resp, int length, int id, int Op, double total){
-    resp->head[0] = 1; /*Tipo de pacote*/
-    resp->head[1] = length*8; /*Tamanho do pacote*/
-    resp->head[2] = id; /*Identificador da operação(o mesmo do pacote requisição)*/
-    resp->head[3] = Op; /*Status da operaçao*/
-    resp->resposta = total;
-}
-
-void operacao(struct pacote *pac, struct resposta *resp){
-    int Id = pac->head[2], zero = FALSE, len = pac->head[1]/8 /*qnte de numeros*/, i=0;
-    double total = pac->numeros[0];
-	if(len != 1){
-    	switch(pac->head[3]){
-		    case 0: /*Operação de adição*/
-		        for(i=1; i<len; i++){
-		                total = total + pac->numeros[i];
-		            }
-		            gera_RESP(resp, pac->head[1], Id, 0, total);
-		            break;
-		    case 1: /*Operação de subtração*/
-		        for(i=1; i<len; i++){
-		                total -= pac->numeros[i];
-                    }
-		            gera_RESP(resp, pac->head[1], Id, 0, total);
-		            break;
-		    case 2: /*Operação de multiplicação*/
-		        for(i=1; i<len; i++){
-		                total *= pac->numeros[i];
-		            }
-		            gera_RESP(resp, pac->head[1], Id, 0, total);
-		            break;
-		    case 3: /*Operação de divisão*/           
-				for(i=1; i<len; i++){
-					if(pac->numeros[i] == 0){ //caso tenha zero
-						zero = TRUE;
-						break;
-					}else{
-		                total /= pac->numeros[i];
-					}
-				}
-					if(zero == FALSE){
-		            	gera_RESP(resp, pac->head[1], Id, 0, total);
-					}else{
-						gera_RESP(resp, pac->head[1], Id, 1, 0); //Impossibilidade Matemática
-					}
-				break;
-		}
-	}else gera_RESP(resp, pac->head[1], Id, 2, 0); //Erro de sintaxe, apenas um número!
-}
-
-void zerar_memoria(struct pacote *pac, struct resposta *resp){
+void zerar_memoria(struct pacote *pac, struct answer *resp){
    memset(pac->head,0,sizeof(pac->head));
    memset(pac->numeros,0,sizeof(pac->numeros));
    memset(resp->head,0,sizeof(resp->head));
-   resp->resposta = 0;
+   resp->total = 0;
 }
 
-void mostra_dados(struct pacote *pac, struct resposta *resp){
+void mostra_dados(struct pacote *pac, struct answer *resp){
     int op = resp->head[3]; //Status da operação
-    printf("HEAD Requisição:\n %d (Tipo Requisição) %d (Tamanho Bytes) %d (ID)\n",pac->head[0],pac->head[1],pac->head[2]); 
+    printf("HEAD Requisição:\n %d (Tipo Requisição) %d (Tamanho Bytes) %d (ID)\n",pac->head[0],pac->head[1],pac->head[2]);
     if(op == 0){
         printf("Tipo da Operação: ");
         switch(pac->head[3]){
@@ -96,7 +46,7 @@ void mostra_dados(struct pacote *pac, struct resposta *resp){
         int len = pac->head[1]/8;
         for(int j=0; j<len; j++)
             printf("%.2lf ", pac->numeros[j]);
-        printf("\nResposta: %.2lf \n\n", resp->resposta);
+        printf("\nRespostar: %.2lf \n\n", resp->total);
     }
     else if(op == 1) printf("Impossibilidade Matemática\n\n");
     else printf("Erro de Sintaxe\n\n");
@@ -106,8 +56,8 @@ void mostra_dados(struct pacote *pac, struct resposta *resp){
 int main()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    socklen_t len = sizeof(remoto);
-    int client, rec, env, j;
+    socklen_t len = sizeof(remote);
+    int client, rec, env;
 
     /*Conexão com o socket requisição*/
     if(sockfd == -1){
@@ -133,7 +83,7 @@ int main()
 
 	printf("Aguardando requisição...\n");
 
-    client = accept(sockfd, (struct sockaddr *)&remoto, &len);
+    client = accept(sockfd, (struct sockaddr *)&remote, &len);
     if(client==-1){
         perror("accept ");
         exit(1);
@@ -142,8 +92,8 @@ int main()
 
     while(1){
         struct pacote *pac = (struct pacote*)malloc(sizeof(struct pacote));
-        struct resposta *resp = (struct resposta*)malloc(sizeof(struct resposta));
-		
+        struct answer *resp = (struct answer*)malloc(sizeof(struct answer));
+
 		zerar_memoria(pac, resp);
 
         rec = recv(client, pac, sizeof(struct pacote), 0);
@@ -151,7 +101,7 @@ int main()
         if(rec > 0){
             printf("Pacote Recebido!\n\n");
             operacao(pac, resp);
-            env = send(client, resp, sizeof(struct resposta), 0);
+            env = send(client, resp, sizeof(struct answer), 0);
             mostra_dados(pac, resp);
             free(pac);  pac = NULL;
             free(resp); resp = NULL;
