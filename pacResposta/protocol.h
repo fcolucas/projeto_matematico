@@ -34,7 +34,7 @@ struct Answer{
 	double total;
 };
 
-void answer_head(struct Answer *answer, int length, int id, int op, int total);
+void answer_head(struct Answer *answer, int length, int id, int op, double total);
 
 void request_head(struct Request *request, int length, int id, int op);
 

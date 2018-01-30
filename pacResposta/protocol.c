@@ -1,14 +1,21 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <unistd.h>
 #include "protocol.h"
 
-void answer_head(struct answer *ans, int length, int id, int op, double total){
-    ans->head[TYPE] = TYPE_ANWSER;
-    ans->head[LENGTH] = length*sizeof(double); /*Tamanho do pacote*/
-    ans->head[ID] = id; /*Identificador da operação(o mesmo do pacote requisição)*/
-    ans->head[OPERATION] = op; /*Status da operaçao*/
-    ans->total = total;
+void answer_head(struct Answer *answer, int length, int id, int op, double total){
+    answer->head[TYPE] = TYPE_ANWSER;
+    answer->head[LENGTH] = length*sizeof(double); /*Tamanho do pacote*/
+    answer->head[ID] = id; /*Identificador da operação(o mesmo do pacote requisição)*/
+    answer->head[OPERATION] = op; /*Status da operaçao*/
+    answer->total = total;
 }
 
-void operation(struct request *request, struct answer *answer){
+void operation(struct Request *request, struct Answer *answer){
     int id = request->head[ID], zero = FALSE, len = request->head[LENGTH]/8 /*qnte de numeros*/, i;
     double total = request->numeros[0];
 	if(len != 1){
@@ -17,21 +24,21 @@ void operation(struct request *request, struct answer *answer){
 		        for(i=1; i<len; i++){
 		                total += request->numeros[i];
 		            }
-                answer_head(ans, request->head[LENGTH], id, MATH_SUCESS, total);
+                answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
                 break;
 
 		    case OP_SUBTRACT: /*Operação de subtração*/
 		        for(i=1; i<len; i++){
 		                total -= request->numeros[i];
                     }
-                answer_head(ans, request->head[LENGTH], id, MATH_SUCESS, total);
+                answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
                 break;
 
 		    case OP_MULTIPLY: /*Operação de multiplicação*/
 		        for(i=1; i<len; i++){
 		                total *= request->numeros[i];
 		            }
-		            answer_head(ans, request->head[LENGTH], id, MATH_SUCESS, total);
+		            answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
 		            break;
 
 		    case OP_DIVIDE: /*Operação de divisão*/
@@ -46,13 +53,14 @@ void operation(struct request *request, struct answer *answer){
 				}
 
                 if(zero == FALSE){
-                    answer_head(ans, request->head[LENGTH], id, MATH_SUCESS, total);
+                    answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
                 }else{
-		            answer_head(ans, request->head[LENGTH], id, MATH_ERROR, total);
+		            answer_head(answer, request->head[LENGTH], id, MATH_ERROR, total);
                 }
                 break;
 		}
-	}else answer_head(ans, request->head[LENGTH], id, SINTAX_ERROR, total);
+	}else answer_head(answer, request->head[LENGTH], id, SINTAX_ERROR, total);
+}
 
 void reset_memory(struct Request *request, struct Answer *answer){
    memset(request->head,0,sizeof(request->head));
