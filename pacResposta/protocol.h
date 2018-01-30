@@ -21,12 +21,27 @@
 #define TRUE 1
 #define FALSE 0
 
-void answer_head(struct answer *ans, int length, int id, int op, int total);
+struct sockaddr_in local;
+struct sockaddr_in remote;
 
-void request_head(struct request *req, int length, int id, int op);
+struct Request{
+	char head[4];
+	double numeros[20];
+};
 
-void operation(struct request *req, struct answer *ans);
+struct Answer{
+	char head[4];
+	double total;
+};
 
+void answer_head(struct Answer *answer, int length, int id, int op, int total);
 
+void request_head(struct Request *request, int length, int id, int op);
+
+void operation(struct Request *request, struct Answer *answer);
+
+void reset_memory(struct Request *request, struct Answer *answer);
+
+void show_data(struct Request *request, struct Answer *answer);
 
 #endif // PROTOCOL_H_INCLUDED
