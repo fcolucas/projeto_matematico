@@ -7,44 +7,13 @@
 #include <unistd.h>
 #include "protocol.h"
 
-#define PORTA 4000
-
 int main()
 {
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    socklen_t len = sizeof(remote);
-    int client, rec, env;
+    int sockfd, rec, env, client;
+    char ip[10] = "127.0.0.1";
 
     /*Conexão com o socket requisição*/
-    if(sockfd == -1){
-        perror("socket ");
-        exit(1);
-    }else{
-        printf("Socket criado!\n");
-    }
-
-    local.sin_family = AF_INET;
-    local.sin_port = htons(PORTA);
-    memset(local.sin_zero, 0x0, 8);
-
-    if (bind(sockfd, (struct sockaddr *)&local, sizeof(local))==-1){
-        perror("bind ");
-        exit(1);
-    }
-
-    if(listen(sockfd, 1)==-1){
-		perror("listen ");
-		exit(1);
-	}
-
-	printf("Aguardando requisição...\n");
-
-    client = accept(sockfd, (struct sockaddr *)&remote, &len);
-    if(client==-1){
-        perror("accept ");
-        exit(1);
-    }
-    printf("Requisição conectado! Aguardando pacote...\n");
+   config_socket(local, remote, client, sockfd, PORT, ip);
 
     while(1){
         struct Request *request = (struct Request*)malloc(sizeof(struct Request));
@@ -62,7 +31,10 @@ int main()
             free(request);  request = NULL;
             free(answer); answer = NULL;
         }
-		else break;
+		else{
+            free(request); request = NULL;
+            free(answer); answer = NULL;
+            break;
     }
     printf("Encerrando protocolo!! \n");
     close(client);
