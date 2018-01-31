@@ -1,5 +1,5 @@
-#ifndef PROTOCOL_H_INCLUDED
-#define PROTOCOL_H_INCLUDED
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
 
 #define TYPE_REQUEST 0
 #define TYPE_ANWSER 1
@@ -35,7 +35,7 @@ struct Answer{
 	double total;
 };
 
-void config_socket(struct sockaddr_in local, struct sockaddr_in remote, int client, int sockfd, int port, char *ip);
+//void config_socket(struct sockaddr_in local, struct sockaddr_in remote, int sockfd, int port);
 
 void answer_head(struct Answer *answer, int length, int id, int op, double total);
 

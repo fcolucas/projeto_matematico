@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include "protocol.h"
 
+//void config_socket(struct sockaddr_in local, struct sockaddr_in remote, int sockfd, int port){
+
 void answer_head(struct Answer *answer, int length, int id, int op, double total){
     answer->head[TYPE] = TYPE_ANWSER;
     answer->head[LENGTH] = length*sizeof(double); /*Tamanho do pacote*/
@@ -88,32 +90,4 @@ void show_data(struct Request *request, struct Answer *answer){
     else if(answer->head[OPERATION] == MATH_ERROR) printf("Impossibilidade Matemática\n\n");
     else printf("Erro de Sintaxe\n\n");
     printf("Aguardando novo pacote...\n");
-}
-
-void config_socket(struct sockaddr_in local, struct sockaddr_in remote, int client, int sockfd, int port, char *ip){
-    socklen_t len = sizeof(remote);
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    local.sin_family = AF_INET;
-    local.sin_port = htons(port);
-    memset(local.sin_zero, 0x0, 8);
-
-    if (bind(sockfd, (struct sockaddr *)&local, sizeof(local))==-1){
-        perror("bind ");
-        exit(1);
-    }
-
-     if(listen(sockfd, 1)==-1){
-		perror("listen ");
-		exit(1);
-	}
-
-	printf("Aguardando requisição...\n");
-
-    client = accept(sockfd, (struct sockaddr *)&remote, &len);
-    if(client==-1){
-        perror("accept ");
-        exit(1);
-    }
-    printf("Requisição conectado! Aguardando pacote...\n");
 }
