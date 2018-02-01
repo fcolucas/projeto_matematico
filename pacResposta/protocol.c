@@ -2,13 +2,41 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include "protocol.h"
 
-//void config_socket(struct sockaddr_in local, struct sockaddr_in remote, int sockfd, int port){
+int config_socket(struct sockaddr_in local, struct sockaddr_in remote, int sockfd, int port){
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockfd == -1){
+        perror("error in function socket");
+        exit(1);
+    }
 
+    printf("Socket criado!");
+
+    local.sin_family = AF_INET;
+    local.sin_port = htons(port);
+    memset(local.sin_zero, 0x0, 8);
+
+    if(bind(sockfd, (struct sockaddr *)&local, sizeof(local)) == -1){
+        perror("error in function bind");
+        exit(1);
+    }
+
+    if(listen(sockfd, 1) == -1){
+        perror("error in function listen");
+        exit(1);
+    }
+    printf("Aguardando requisição...\n");
+
+    socklen_t len = sizeof(remote);
+    int client = accept(sockfd, (struct sockaddr *)&remote, &len);
+    if(client == -1){
+        perror("error in function client");
+        exit(1);
+    }
+    return client;
+}
 void answer_head(struct Answer *answer, int length, int id, int op, double total){
     answer->head[TYPE] = TYPE_ANWSER;
     answer->head[LENGTH] = length*sizeof(double); /*Tamanho do pacote*/

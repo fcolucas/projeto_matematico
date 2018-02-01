@@ -21,6 +21,7 @@
 #define TRUE 1
 #define FALSE 0
 #define PORT 3000
+#define FLAGS 0
 
 struct sockaddr_in local;
 struct sockaddr_in remote;
@@ -35,7 +36,7 @@ struct Answer{
 	double total;
 };
 
-//void config_socket(struct sockaddr_in local, struct sockaddr_in remote, int sockfd, int port);
+int config_socket(struct sockaddr_in local, struct sockaddr_in remote, int sockfd, int port);
 
 void answer_head(struct Answer *answer, int length, int id, int op, double total);
 
