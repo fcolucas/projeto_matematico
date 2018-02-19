@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include "protocol.c"
+#include "protocol.h"
 
 int main()
 {
