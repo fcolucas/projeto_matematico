@@ -4,10 +4,6 @@
 #define FLAGS 0
 #define SIZE_DOUBLE 8
 
-
-
-
-
 struct sockaddr_in local;
 struct sockaddr_in remote;
 

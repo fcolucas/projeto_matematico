@@ -3,37 +3,48 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include "protocol.h"
-#include "communication.h"
+#include "../lib/protocol.h"
+#include "../lib/communication.h"
 
 
-int main()
-{
-    int sockfd, rec, env, client;
+int main() {
+    int sockfd = 0, rec, env, client, *length_array;
+    int x[1];
+    length_array = x;
+    double array_answ[5];
     client = config_socket(local, remote, sockfd, PORT);
-    //struct request *request = (struct request*)malloc(sizeof(struct request));
-    //struct answer *answer = (struct answer*)malloc(sizeof(struct answer));
+    struct request *request = (struct request*)malloc(sizeof(struct request));
+    struct answer *answer = (struct answer*)malloc(sizeof(struct answer));
 
-	while(TRUE){
+    while(TRUE){
 
-        struct request *request = (struct request*)malloc(sizeof(struct request));
-        struct answer *answer = (struct answer*)malloc(sizeof(struct answer));
-    	
+        //reset_memory(request, answer);
 
-    	//reset_memory(request, answer);
-        rec = recv(client, request, sizeof(struct request), FLAGS);
+        recv(client, length_array, sizeof(int), FLAGS);
+        double *array = (double *)malloc(sizeof(double) * length_array[0]);
+
+        rec = (int) recv(client, array, sizeof(double)*length_array[0], FLAGS);
+        if(rec == -1){
+            perror("\nErro no recebimento do pacote: ");
+            return EXIT_FAILURE;
+        }
+
         if (rec != FALSE){
-            printf("Pacote Recebido!\n\n");
+            convert_array_struct(request, array);
+            printf("Pacote recebido!\n\n");
             operate(request, answer);
-            env = (int) send(client, answer, sizeof(struct answer), FLAGS);
+
+            convert_struct_array(answer, array_answ, 5, TYPE_ANSWER);
+
+            env = (int) send(client, array_answ, sizeof(double)*5, FLAGS);
+            if(env == -1){
+                perror("\nErro no envio do pacote: ");
+                return EXIT_FAILURE;
+            }
             show_data(request, answer);
             printf("Aguardando novo pacote...\n");
-            free(request);
-            request = NULL;
-            free(answer);
-            answer = NULL;
         }
-        
+
         else{
             free(request);
             request = NULL;
@@ -41,7 +52,7 @@ int main()
             answer = NULL;
             break;
         }
-     }
+    }
 
     printf("Encerrando protocolo!! \n");
     close(client);
